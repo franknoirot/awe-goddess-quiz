@@ -15,15 +15,17 @@
 	import StartPage from './components/StartPage.svelte'
 	import Question from './components/Question.svelte'
 	import EndPage from './components/EndPage.svelte'
+	import Analytics from './components/Analytics.svelte'
 
 	setContext('quiz', quiz)
 	console.log(quiz)	
 
-	$personality = blankPersonality(quiz.results[1].result_metrics[0])
+	$personality = blankPersonality(quiz.results[0].result_metrics[0])
 
 	const routes = Object.fromEntries([
 		...quiz.questions.map(question => ['/'+question.slug, Question]),
 		['/meet-your-goddess', EndPage],
+		['/analytics', Analytics],
 		['/*', StartPage]
 	])
 

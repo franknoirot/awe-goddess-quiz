@@ -16,11 +16,9 @@ export const personalityDistance = (mbObjA, mbObjB) => {
 }
 
 export const personalityDistSum = (mbObjA, mbObjB) => {
-    console.log(mbObjA, mbObjB)
-    console.log('from inside personalityDistSum' , Object.entries(personalityDistance(mbObjA, mbObjB)).map(entry => entry[1]))
     return Object.entries(personalityDistance(mbObjA, mbObjB))
         .map(entry => entry[1])
-        .reduce((acc, val) => acc + val, 0)
+        .reduce((acc, val) => acc + Math.abs(val), 0)
 }
 
 export const blankPersonality = (personalityObj) => {

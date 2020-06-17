@@ -15,7 +15,8 @@
     let selectedAnswer = 0
 </script>
 
-<div id={'question-'+$currQuestionIndex} class='question' in:fade={{duration: 500}}>
+<div id={'question-'+$currQuestionIndex} class='question' in:fade={{duration: 500}}
+    style={`--answer-width: ${ currQuestion.answer_width }; --answer-gap: ${ currQuestion.answer_gap }`}>
     <h3>Question #{ $currQuestionIndex+1 }</h3>
     <p>{ currQuestion.content }</p>
     <div class={'answers '+currQuestion.layout}>
@@ -71,11 +72,17 @@
         display: flex;
         align-items: center;
     }
+
     .answer > * {
         margin: 0 .5rem;
     }
 
     pre {
         margin: 3vh auto;
+    }
+
+    .vertical_cards .answer {
+        width: var(--answer-width);
+        margin: 0 var(--answer-gap);
     }
 </style>

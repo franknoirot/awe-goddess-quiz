@@ -1,5 +1,6 @@
 <script>
     import { getContext } from 'svelte'
+    import { push } from 'svelte-spa-router'
     import { currQuestionIndex } from '../stores.js'
 
     let quizLength = getContext('quiz').questions.length
@@ -9,7 +10,10 @@
 <header>
     <div class='top-bar'>
         <a href='/'>Home</a>
-        <button>
+        <button on:click={() => {
+            $currQuestionIndex = 0
+            push('/')
+        }}>
             <svg viewBox="0 0 5 5">
                 <path d='M 1 1 l 3 3 M 4 1 l -3 3' stroke-linecap='round' stroke='black' stroke-width="0.5px"/>
             </svg>
@@ -30,7 +34,7 @@
     }
 
     .top-bar {
-        padding: 3vh 3vw 0 3vw;
+        padding: 1rem 2.5rem .5rem 2.5rem;
         display: flex;
         justify-content: space-between;
     }
