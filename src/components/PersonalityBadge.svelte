@@ -6,7 +6,7 @@
 <div class='badge'>
     <p>Your Personality so far...</p>
     <div style="display: flex; justify-content: center;">
-        <MyersBriggsChart personality={ $personality } width={"90px"}/>
+        <MyersBriggsChart personality={ $personality.metrics } width={"90px"}/>
     </div>
 </div>
 

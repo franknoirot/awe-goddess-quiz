@@ -3,8 +3,8 @@
     import { push } from 'svelte-spa-router'
     import { currQuestionIndex } from '../stores.js'
 
-    let quizLength = getContext('quiz').questions.length
-    $: widthPct = $currQuestionIndex / quizLength * 100 + '%'
+    let quizLength = getContext('quiz').questions.length + 1
+    $: widthPct = ($currQuestionIndex + 1) / quizLength * 100 + '%'
 </script>
 
 <header>

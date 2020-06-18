@@ -1,14 +1,21 @@
 const { createApolloFetch } = require('apollo-fetch')
+var remark = require('remark')
+var recommended = require('remark-preset-lint-recommended')
+var html = require('remark-html')
+var report = require('vfile-reporter')
 
 const fetch = createApolloFetch({
-  uri: 'https://awe-quiz-builder.herokuapp.com/graphql'
+  uri: 'http://localhost:1337/graphql'
 })
+
+//5ee92fc00712a0ae8389be90
 
 const query = `
 query {
-  quiz(id: "5ee92fc00712a0ae8389be90") {
+  quiz(id: "1") {
     title
     questions {
+      id
       content
       layout
       answer_width
@@ -17,6 +24,7 @@ query {
       answers {
         content
         answer_metrics {
+          __typename
           ...on ComponentMetricsMyersBriggs {
             mind
             energy
@@ -24,6 +32,44 @@ query {
             nature
             identity
           }
+          ...on ComponentMetricsCharity {
+            charity {
+              charity_name
+              amount_raised
+            }
+          }
+        }
+      }
+    }
+    interstitials {
+      id
+      label
+      content
+      layout
+      transition
+      slug
+      position {
+        __typename
+        ...on ComponentInterstitialAbsolute {
+          slot
+        }
+        ...on ComponentInterstitialRelativeToQuestion {
+          question {
+            id
+          }
+          question_offset
+        }
+      }
+    }
+    frames {
+      ...on ComponentQuizQuestionSlot {
+        question {
+          id
+        }
+      }
+      ...on ComponentQuizInterstitialSlot {
+        interstitial {
+          id
         }
       }
     }
@@ -44,11 +90,63 @@ query {
 }`
 
 module.exports = fetch({ query }).then(result => {
-  const dataObj = result.data.quiz
+
+  const dataObj = preprocessQuiz(result.data.quiz)
+
   // dataObj.analytics = runAnalytics(dataObj)
 
   return dataObj
 })
+
+function preprocessQuiz(quizObj) {
+  quizObj.questions.forEach(q => { 
+    //preformat question uris
+    q.slug = 'q/'+q.slug
+  
+    remark()
+      .use(recommended)
+      .use(html)
+      .process(q.content, function(err, file) {
+        console.error(report(err || file))
+        q.content = String(file)
+      })
+
+    q.answers.forEach(a => {
+      remark()
+      .use(recommended)
+      .use(html)
+      .process(a.content, function(err, file) {
+        console.error(report(err || file))
+        a.content = String(file)
+      })
+    })
+  }) 
+
+  // slot in the interstitials with the questions.
+  quizObj.interstitials.forEach(interstitial => {
+    console.log('from within the interstitial preprocessing!', interstitial)
+    if (!interstitial.position[0]) return 
+    if (interstitial.position[0].__typename === 'ComponentInterstitialAbsolute') {
+      quizObj.questions.splice(interstitial.position[0].slot, 0, interstitial)
+    }
+    else if (interstitial.position[0].__typename === 'ComponentInterstitialRelativeToQuestion') {
+      quizObj.questions.splice(quizObj.questions.findIndex(elem => elem.id === interstitial.position[0].question.id) + interstitial.position[0].question_offset , 0, interstitial) 
+    }
+
+    // preformat interstitial slugs
+    interstitial.slug = 'i/' + interstitial.slug
+
+    remark()
+      .use(recommended)
+      .use(html)
+      .process(interstitial.content, function(err, file) {
+        console.error(report(err || file))
+        interstitial.content = String(file)
+      })
+  })
+
+  return quizObj
+}
 
 
 

@@ -14,18 +14,21 @@
 	import PersonalityBadge from './components/PersonalityBadge.svelte'
 	import StartPage from './components/StartPage.svelte'
 	import Question from './components/Question.svelte'
+	import Interstitial from './components/Interstitial.svelte'
 	import EndPage from './components/EndPage.svelte'
 	import Analytics from './components/Analytics.svelte'
 
 	setContext('quiz', quiz)
 	console.log(quiz)	
 
-	$personality = blankPersonality(quiz.results[0].result_metrics[0])
+	$personality = { metrics: blankPersonality(quiz.results[0].result_metrics[0]), charity: {} }
 
 	const routes = Object.fromEntries([
-		...quiz.questions.map(question => ['/'+question.slug, Question]),
+		//...quiz.questions.map(question => ['/'+question.slug, ((question.slug.includes('interstitial')) ? Interstitial : Question)]),
 		['/meet-your-goddess', EndPage],
 		['/analytics', Analytics],
+		['/i/:slug', Interstitial],
+		['/q/:slug', Question],
 		['/*', StartPage]
 	])
 
@@ -46,15 +49,16 @@
 		box-sizing: border-box;
 		padding: 0;
 		margin: 0;
+		display: grid;
+		grid-template-rows: auto 1fr;
+		height: 100vh;
 	}
 
 	main {
-		max-width: 960px;
 		box-sizing: border-box;
-		padding-block-start: 5vh;
 		margin: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
+		overflow: auto;
+		width: 100%;
+		height: 100%;
 	}
 </style>
