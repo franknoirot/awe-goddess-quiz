@@ -5,106 +5,8 @@ var recommended = require('remark-preset-lint-recommended')
 var html = require('remark-html')
 var report = require('vfile-reporter')
 
-const host = 'https://awe-quiz-builder.herokuapp.com'
-
-// const fetch = createApolloFetch({
-//   uri: host+'/graphql'
-// })
-
-// const id = 1
-const id = '5ee92fc00712a0ae8389be90'
-
-// const query = `
-// query {
-//   quiz(id: "1") {
-//     title
-//     questions {
-//       id
-//       content
-//       layout
-//       answer_width
-//       answer_gap
-//       image_aspect_ratio
-//       slug
-//       answers {
-//         image {
-//           url
-//         }
-//         content
-//         answer_metrics {
-//           __typename
-//           ...on ComponentMetricsMyersBriggs {
-//             mind
-//             energy
-//             tactics
-//             nature
-//             identity
-//           }
-//           ...on ComponentMetricsCharity {
-//             charity {
-//               charity_name
-//               amount_raised
-//             }
-//           }
-//         }
-//       }
-//     }
-//     interstitials {
-//       id
-//       label
-//       content
-//       layout
-//       transition
-//       slug
-//       position {
-//         __typename
-//         ...on ComponentInterstitialAbsolute {
-//           slot
-//         }
-//         ...on ComponentInterstitialRelativeToQuestion {
-//           question {
-//             id
-//           }
-//           question_offset
-//         }
-//       }
-//     }
-//     results {
-//       result_name
-//       description
-//       result_metrics {
-//         ... on ComponentMetricsMyersBriggs {
-//           mind
-//           energy
-//           tactics
-//           nature
-//           identity
-//         }
-//       }
-//     }
-//     results_metrics {
-//       ...on ComponentMetricsMyersBriggsResults {
-//         mind {
-//           result_name
-//         }
-//         energy {
-//           result_name
-//         }
-//         nature {
-//           result_name
-//         }
-//         tactics {
-//           result_name
-//         }
-//         identity {
-//           result_name
-//         }
-//       }
-//     }
-//     font_color
-//     progress_color
-//   }
-// }`
+host = 'https://awe-quiz-builder.herokuapp.com'
+id = '5ee92fc00712a0ae8389be90'
 
 module.exports = Promise.all([
     fetch(host+'/quizzes/'+id).then(res => res.json()),
@@ -113,7 +15,9 @@ module.exports = Promise.all([
   ]).then(([quiz, questions, interstitials]) => {
     const dataObj = preprocessQuiz(quiz, questions, interstitials)
 
-    // dataObj.analytics = runAnalytics(dataObj)
+    if (process.env.NODE_ENV === "development") {
+      dataObj.analytics = runAnalytics(dataObj)
+    }
 
     return dataObj
   }
@@ -121,7 +25,6 @@ module.exports = Promise.all([
 
 function preprocessQuiz(quizObj, questionObj, interstitials) {
   const blank = deleteProps(blankPersonality(quizObj.results_metrics[0]), ['_id', 'id', 'createdAt', 'updatedAt', '__v', '__component'])
-  console.log('blank', blank)
 
   quizObj.questions.forEach(q => { 
     //preformat question uris
@@ -156,13 +59,11 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
       })
     }
 
-    console.log(q.answers.map(({label, answer_metrics}) => { label, answer_metrics }))
-  
     remark()
       .use(recommended)
       .use(html)
       .process(q.content, function(err, file) {
-        console.error(report(err || file))
+        // console.error(report(err || file))
         q.content = String(file)
       })
 
@@ -181,7 +82,7 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
         .use(recommended)
         .use(html)
         .process(a.content, function(err, file) {
-          console.error(report(err || file))
+          // console.error(report(err || file))
           a.content = String(file)
         })
     })
@@ -211,7 +112,7 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
       .use(recommended)
       .use(html)
       .process(interstitial.content, function(err, file) {
-        console.error(report(err || file))
+        // console.error(report(err || file))
         interstitial.content = String(file)
       })
 
@@ -309,7 +210,6 @@ function processPermutations(qnaArray, numPermutations, resultArray) {
 
   resultArray.forEach(res => { res.weight = qnaArray.length / numPermutations * res.count })
 
-  console.log(resultArray)
   return resultArray
 }
 

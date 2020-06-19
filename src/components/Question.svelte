@@ -74,13 +74,8 @@
         justify-content: center;
         text-align: center;
         max-width: 720px;
-        margin: 10vh auto;
-    }
-
-    .question p {
-        width: 50ch;
-        margin: 5vh auto;
-        margin-bottom: 0;
+        margin: calc(5vh + 3vw) auto;
+        padding: 0 2vw;
     }
 
     fieldset {

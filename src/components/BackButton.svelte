@@ -14,8 +14,9 @@
 <style>
     button {
         position: fixed;
-        bottom: 10vh;
-        left: 5vw;
+        bottom: 1vw;
+        left: 3vw;
+        padding: 0;
         background: transparent;
         border: none;
         text-align: center;

@@ -15,7 +15,7 @@
 <section>
     <div class='result'>
         <div>
-            <h2>{ sortedResults[0].result_name }</h2>
+            <h2 class='res-heading'>{ sortedResults[0].result_name }</h2>
             <span>{ calculateMyersBriggs(sortedResults[0].result_metrics[0]) }</span>
             <p><strong>Distance:</strong> { personalityDistSum($personality.metrics, sortedResults[0].result_metrics[0]).toFixed(4) }</p>
         </div>
@@ -33,7 +33,7 @@
 {#each sortedResults.slice(1) as result, i ('res-'+i)}
     <div class='result'>
         <div>
-            <h2>{ result.result_name }</h2>
+            <h2 class='res-heading'>{ result.result_name }</h2>
             <span>{ calculateMyersBriggs(result.result_metrics[0]) }</span>
             <p><strong>Distance:</strong> { personalityDistSum($personality.metrics, result.result_metrics[0]).toFixed(4) }</p>
         </div>
@@ -61,6 +61,10 @@
     section, h1, h2 {
         max-width: 720px;
         margin: auto;
+    }
+
+    section, h1, h2:not(.res-heading) {
+        padding: 0 2vw;
     }
 
     h1 {

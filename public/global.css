@@ -69,3 +69,14 @@ button:disabled {
 button:not(:disabled):active {
 	background-color: #ddd;
 }
+
+.interstitial p {
+	line-height: 2;
+}
+
+
+@media(max-width: 475px) {
+	.interstitial p {
+		line-height: 1.6;
+	}
+}

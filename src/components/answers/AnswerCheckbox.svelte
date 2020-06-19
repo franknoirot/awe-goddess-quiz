@@ -19,6 +19,7 @@
     label {
         display: grid;
         grid-template-columns: 3rem auto;
+        grid-gap: 2vw;
         align-items: center;
         margin: 0;
         box-sizing: border-box;
@@ -54,7 +55,6 @@
 
     .checkmark {
         width: 2em;
-        margin-inline-end: .5rem;
     }
 
     .checkmark path {
@@ -96,10 +96,18 @@
 
     label > span { 
         display: block;
-        margin-left: 1.5rem;
     }
 
     input:focus:not(:checked) ~ span {
         text-decoration: underline;
+    }
+
+    @media(max-width: 475px) {
+        label {
+            margin: 0;
+            grid-template-columns: 2rem auto;
+            padding: .25rem;
+            padding-left: .5rem;
+        }
     }
 </style>

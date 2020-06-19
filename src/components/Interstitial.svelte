@@ -3,6 +3,7 @@
     import { get } from 'svelte/store'
     import { fade } from 'svelte/transition'
     import { push } from 'svelte-spa-router'
+    import BackButton from './BackButton.svelte'
     import { currQuestionIndex, personality, quiz } from '../stores.js'
 
     export let params
@@ -47,6 +48,7 @@
     <button on:click={() => { 
         push((nextQuestion) ? `#/${ nextQuestion.slug }` : '#/meet-your-goddess')
     }}>Next</button>
+    <BackButton />
 </div>
 
 <style>
@@ -58,14 +60,19 @@
         background: var(--interstitial-background);
         width: 100%;
         box-sizing: border-box;
-        padding: 10vh 5vw;
-        height: 100%;
+        padding: calc(5vh + 2vw) 5vw;
+        min-height: 100%;
     }
 
     .content {
         max-width: 720px;
-        margin: 5vh auto;
+        margin: 0vh auto;
         margin-bottom: 0;
-        line-height: 2;
+    }
+
+    @media(max-width: 475px) {
+        button {
+            margin-top: 1.25rem;
+        }
     }
 </style>
