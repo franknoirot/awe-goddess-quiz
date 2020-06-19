@@ -8,7 +8,7 @@
     $currQuestionIndex = $currQuestionIndex + 1
 
     const results = $quiz.results
-    $: sortedResults = results.sort((a,b) => Math.abs(personalityDistSum($personality.metrics, a.result_metrics[0])) > Math.abs(personalityDistSum($personality.metrics, b.result_metrics[0])))
+    $: sortedResults = results.sort((a,b) => Math.abs(personalityDistSum($personality.metrics, a.result_metrics[0])) - Math.abs(personalityDistSum($personality.metrics, b.result_metrics[0])))
 </script>
 
 <h1>Your top goddess is: { sortedResults[0].result_name }</h1>
