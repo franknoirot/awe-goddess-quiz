@@ -1,16 +1,27 @@
 <script>
     import { getContext } from 'svelte'
-    import { currQuestionIndex } from '../stores.js'
+    import { push } from 'svelte-spa-router'
+    import { currQuestionIndex, quiz, debug } from '../stores.js'
 
-    const quiz = getContext('quiz')
+    $currQuestionIndex = -1
 
-    console.log('from inside the StartPage!', quiz)
-
-    const firstQuestion = quiz.questions[$currQuestionIndex]
-    console.log('question is', firstQuestion)
+    const firstQuestion = $quiz.questions[$currQuestionIndex + 1]
 </script>
 
-<h1>{ quiz.title }</h1>
-<p>Click to get started</p>
-<p>Current value of currQuestionIndex is { $currQuestionIndex }</p>
-<a href={`#/${ firstQuestion.slug }`}>Let's Get Started</a>
+<section>
+    <h1>{ $quiz.title }</h1>
+    <p>Click to get started</p>
+    <button on:click={(e) => {
+        if (e.shiftKey) { $debug = true }
+        $currQuestionIndex++
+        push(`#/${ firstQuestion.slug }`)
+    }}>Let's Get Started</button>
+</section>
+
+<style>
+    section {
+        max-width: 720px;
+        margin: 15vh auto;
+        text-align: center;
+    }
+</style>

@@ -11,6 +11,7 @@
     "@rollup/plugin-node-resolve": "^8.0.0",
     "apollo-fetch": "^0.7.0",
     "es6-promise": "^4.2.8",
+    "isomorphic-fetch": "^2.2.1",
     "papaparse": "^5.2.0",
     "require-from-string": "^2.0.2",
     "rollup": "^2.3.4",
@@ -22,7 +23,11 @@
   },
   "dependencies": {
     "googleapis": "^39.2.0",
+    "remark": "^12.0.0",
+    "remark-html": "^11.0.2",
+    "remark-preset-lint-recommended": "^4.0.0",
     "sirv-cli": "^0.4.4",
-    "svelte-spa-router": "^2.2.0"
+    "svelte-spa-router": "^2.2.0",
+    "vfile-reporter": "^6.0.1"
   }
 }

@@ -3,12 +3,12 @@
     import { push } from 'svelte-spa-router'
     import { blankPersonality, calculateMyersBriggs, personalityDistance, personalityDistSum } from '../functions/personality.js'
     import MyersBriggsChart from './MyersBriggsChart.svelte'
-    import { currQuestionIndex, personality } from '../stores.js'
+    import { currQuestionIndex, personality, quiz } from '../stores.js'
 
     $currQuestionIndex = $currQuestionIndex + 1
 
-    const results = getContext('quiz').results
-    $: sortedResults = results.sort((a,b) => Math.abs(personalityDistSum($personality, a.result_metrics[0])) > Math.abs(personalityDistSum($personality, b.result_metrics[0])))
+    const results = $quiz.results
+    $: sortedResults = results.sort((a,b) => Math.abs(personalityDistSum($personality.metrics, a.result_metrics[0])) > Math.abs(personalityDistSum($personality.metrics, b.result_metrics[0])))
 </script>
 
 <h1>Your top goddess is: { sortedResults[0].result_name }</h1>
@@ -17,12 +17,12 @@
         <div>
             <h2>{ sortedResults[0].result_name }</h2>
             <span>{ calculateMyersBriggs(sortedResults[0].result_metrics[0]) }</span>
-            <p><strong>Distance:</strong> { personalityDistSum($personality, sortedResults[0].result_metrics[0]).toFixed(4) }</p>
+            <p><strong>Distance:</strong> { personalityDistSum($personality.metrics, sortedResults[0].result_metrics[0]).toFixed(4) }</p>
         </div>
         <div class='charts'>
-            <MyersBriggsChart personality={ $personality } label="You" />
+            <MyersBriggsChart personality={ $personality.metrics } label="You" />
             <MyersBriggsChart personality={ sortedResults[0].result_metrics[0] } label="Them" />
-            <MyersBriggsChart personality={ personalityDistance($personality, sortedResults[0].result_metrics[0]) }
+            <MyersBriggsChart personality={ personalityDistance($personality.metrics, sortedResults[0].result_metrics[0]) }
                 difference={ true } xScale={0.5} label="Diff."/>
         </div>
     </div>
@@ -35,12 +35,12 @@
         <div>
             <h2>{ result.result_name }</h2>
             <span>{ calculateMyersBriggs(result.result_metrics[0]) }</span>
-            <p><strong>Distance:</strong> { personalityDistSum($personality, result.result_metrics[0]).toFixed(4) }</p>
+            <p><strong>Distance:</strong> { personalityDistSum($personality.metrics, result.result_metrics[0]).toFixed(4) }</p>
         </div>
         <div class='charts'>
-            <MyersBriggsChart personality={ $personality } label="You" />
+            <MyersBriggsChart personality={ $personality.metrics } label="You" />
             <MyersBriggsChart personality={ result.result_metrics[0] } label="Them" />
-            <MyersBriggsChart personality={ personalityDistance($personality, result.result_metrics[0]) }
+            <MyersBriggsChart personality={ personalityDistance($personality.metrics, result.result_metrics[0]) }
                 difference={ true } xScale={0.5} label="Diff."/>
         </div>
     </div>
@@ -48,7 +48,7 @@
 </section>
 <button on:click={() => { 
     $currQuestionIndex = 0
-    $personality = blankPersonality($personality)
+    $personality = { metrics: blankPersonality($personality.metrics) }
     push('#/')
 }}>Start Over</button>
 
@@ -56,6 +56,20 @@
 <style>
     :global(main) {
         counter-reset: result-count;
+    }
+
+    section, h1, h2 {
+        max-width: 720px;
+        margin: auto;
+    }
+
+    h1 {
+        margin-top: 5vh;
+    }
+
+    button {
+        display: block;
+        margin-bottom: 10vh;
     }
 
     .result {
