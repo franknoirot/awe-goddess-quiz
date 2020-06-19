@@ -45,6 +45,7 @@
     svg {
         box-sizing: border-box;
         padding: .5rem;
+        width: 100%;
     }
 
     /* .arrow {

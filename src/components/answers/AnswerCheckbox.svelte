@@ -17,7 +17,8 @@
 
 <style>
     label {
-        display: flex;
+        display: grid;
+        grid-template-columns: 3rem auto;
         align-items: center;
         margin: 0;
         box-sizing: border-box;
@@ -66,7 +67,7 @@
         stroke: #777;
     }
 
-    input:checked + .checkmark path {
+    input:checked ~ .checkmark path {
         stroke: hsl(85deg, 80%, 45%);
     }
 
@@ -82,7 +83,7 @@
         r: 4px;
     }
 
-    input:checked + .checkmark circle {
+    input:checked ~ .checkmark circle {
         fill: hsl(80deg, 50%, 80%);
         r: 5px;
     }
