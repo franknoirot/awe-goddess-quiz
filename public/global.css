@@ -48,19 +48,24 @@ input[type="range"] {
 }
 
 button {
-	color: #333;
-	background-color: #f4f4f4;
-	outline: none;
+	margin: 2rem auto;
+	padding: .5em 2.5em;
+	width: max-content;
+	background: #333;
+	color: white;
+	transition: all .12s ease-in-out;
+}
+
+button:hover,
+button:focus {
+	background: hsl(220deg, 25%, 25%);
 }
 
 button:disabled {
-	color: #999;
+	color: #444;
+	background: #999;
 }
 
 button:not(:disabled):active {
 	background-color: #ddd;
-}
-
-button:focus {
-	border-color: #666;
 }

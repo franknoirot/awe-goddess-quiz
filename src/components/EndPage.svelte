@@ -3,12 +3,12 @@
     import { push } from 'svelte-spa-router'
     import { blankPersonality, calculateMyersBriggs, personalityDistance, personalityDistSum } from '../functions/personality.js'
     import MyersBriggsChart from './MyersBriggsChart.svelte'
-    import { currQuestionIndex, personality } from '../stores.js'
+    import { currQuestionIndex, personality, quiz } from '../stores.js'
 
     $currQuestionIndex = $currQuestionIndex + 1
 
-    const results = getContext('quiz').results
-    $: sortedResults = results.sort((a,b) => Math.abs(personalityDistSum($personality.metrics, a.result_metrics[0])) > Math.abs(personalityDistSum($personality, b.result_metrics[0])))
+    const results = $quiz.results
+    $: sortedResults = results.sort((a,b) => Math.abs(personalityDistSum($personality.metrics, a.result_metrics[0])) > Math.abs(personalityDistSum($personality.metrics, b.result_metrics[0])))
 </script>
 
 <h1>Your top goddess is: { sortedResults[0].result_name }</h1>
@@ -65,6 +65,11 @@
 
     h1 {
         margin-top: 5vh;
+    }
+
+    button {
+        display: block;
+        margin-bottom: 10vh;
     }
 
     .result {

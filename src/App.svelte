@@ -1,5 +1,5 @@
 <script context="module" role='build-vars'>
-	let quiz = 'quiz.js';
+	let quizData = 'quiz.js';
 	let buildTime = 'buildTime.js';
 	// let geoData = 'geoData.js'; // Working on allowing Promises and async build variables
 </script>
@@ -7,9 +7,9 @@
 <script>
 	import TopBar from './components/TopBar.svelte'
 	import Router from 'svelte-spa-router'
-	import { setContext } from 'svelte'
+	import { setContext, onMount } from 'svelte'
 	import { blankPersonality } from './functions/personality.js'
-	import { personality } from './stores.js'
+	import { personality, quiz, debug } from './stores.js'
 	import AnalyticsTable from './components/AnalyticsTable.svelte'
 	import PersonalityBadge from './components/PersonalityBadge.svelte'
 	import StartPage from './components/StartPage.svelte'
@@ -18,10 +18,27 @@
 	import EndPage from './components/EndPage.svelte'
 	import Analytics from './components/Analytics.svelte'
 
-	setContext('quiz', quiz)
-	console.log(quiz)	
+	$quiz = quizData
+	let windowQuizData = false
+	$: if (windowQuizData) {
+		$quiz = Object.assign($quiz, windowQuizData)
+		console.log('quiz data overridden!', $quiz)
+	}
+	onMount(mountFn)
 
-	$personality = { metrics: blankPersonality(quiz.results[0].result_metrics[0]), charity: {} }
+	function mountFn() {
+		if (window.quizDataIncoming) {
+			console.log('triggered!', window.quiz)
+			setQuizDataAsync(window.quiz)
+		}
+		async function setQuizDataAsync(val) { 
+			console.log('setting context!');
+			windowQuizData =  await val
+		}
+	}
+	console.log($quiz)	
+
+	$personality = { metrics: blankPersonality($quiz.results[0].result_metrics[0]), charity: {} }
 
 	const routes = Object.fromEntries([
 		//...quiz.questions.map(question => ['/'+question.slug, ((question.slug.includes('interstitial')) ? Interstitial : Question)]),
@@ -35,15 +52,23 @@
 	console.log('routes = ', routes)
 </script>
 
-<TopBar />
-<main>
-	<Router routes={ routes }/>
+<div class='wrapper' style={`${$quiz.custom_styles.map(style => `--${style.style_name}: ${style.style_value}`).join('; ')}`}>
+	<TopBar />
+	<main>
+		<Router routes={ routes }/>
 
-	<PersonalityBadge />
-</main>
+		<PersonalityBadge active={ $debug } />
+	</main>
+</div>
 
 <style>
 	:global(body) {
+		margin: 0;
+		padding: 0;
+		height: 100vh;
+	}
+
+	.wrapper {
 		position: relative;
 		width: 100%;
 		box-sizing: border-box;
@@ -55,6 +80,9 @@
 	}
 
 	main {
+		background: var(--background);
+		color: var(--font-color);
+
 		box-sizing: border-box;
 		margin: auto;
 		overflow: auto;

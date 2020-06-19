@@ -3,43 +3,56 @@
     import { fade } from 'svelte/transition'
     import { location, push } from 'svelte-spa-router'
     import MyersBriggsChart from './MyersBriggsChart.svelte'
-    import { personality } from '../stores.js'
-    let currQuestion, currQuestionIndex, nextQuestion
+    import AnswerCheckbox from './answers/AnswerCheckbox.svelte'
+    import AnswerVerticalCard from './answers/AnswerVerticalCard.svelte'
+    import BackButton from './BackButton.svelte'
+    import { currQuestionIndex, quiz, personality, debug } from '../stores.js'
+    let currQuestion, currQuestionIndexSetter, nextQuestion
 
     export let params
-    $: quiz = getContext('quiz')
 
     $: {
-        currQuestion = quiz.questions.find(q => q.slug === 'q/' + params.slug)
-        currQuestionIndex = quiz.questions.findIndex(q => q.slug === 'q/' + params.slug)
-        nextQuestion = (currQuestionIndex <= quiz.questions.length) ? quiz.questions[currQuestionIndex+1] : null
+        currQuestion = $quiz.questions.find(q => q.slug === 'q/' + params.slug)
+        currQuestionIndexSetter = $quiz.questions.findIndex(q => q.slug === 'q/' + params.slug)
+        $currQuestionIndex = currQuestionIndexSetter
+        nextQuestion = ($currQuestionIndex <= $quiz.questions.length) ? $quiz.questions[$currQuestionIndex+1] : null
     }
 
-    let selectedAnswer = 0
+    let selectedAnswer
 </script>
 
-<div id={'question-'+currQuestionIndex+'-'+$location} class='question' in:fade={{duration: 250}}
+<div id={'question-'+$currQuestionIndex+'-'+$location} class='question' in:fade={{duration: 250}}
     style={`--answer-width: ${ currQuestion.answer_width }; --answer-gap: ${ currQuestion.answer_gap }`}>
     {@html currQuestion.content }
+    {#if currQuestion.layout === 'checkboxes'}
+        <fieldset>
+            {#each currQuestion.answers as answer, i ('answer-'+i)}
+            <AnswerCheckbox content={answer.content} name={'q-'+$currQuestionIndex} value={ i }
+                on:input={() => selectedAnswer = i}/>
+            {#if $debug && answer.answer_metrics[0].__component === 'metrics.myers-briggs-answers'}
+            <MyersBriggsChart personality={Object.fromEntries(Object.keys(answer.answer_metrics[0]).filter(key => key !== '__component').map(key => { return [key, answer.answer_metrics[0][key]]}))} />
+            {/if}
+            {/each}
+        </fieldset>
+    {:else}
     <div class={'answers '+currQuestion.layout}>
         {#each currQuestion.answers as answer, i ('answer-'+i)}
         <div class='answer'>
-            <label>
-                <input type='radio' name='question' on:input={() => selectedAnswer = i}>
-                {@html answer.content }
-            </label>
-            {#if answer.answer_metrics[0].__typename === 'ComponentMetricsMyersBriggs'}
-            <MyersBriggsChart personality={Object.fromEntries(Object.keys(answer.answer_metrics[0]).filter(key => key !== '__typename').map(key => { return [key, answer.answer_metrics[0][key]]}))} />
+            <AnswerVerticalCard answer={answer} name={'q-'+$currQuestionIndex} value={ i }
+                on:input={() => selectedAnswer = i} aspect={ currQuestion.image_aspect_ratio }/>
+            {#if $debug && answer.answer_metrics[0].__component === 'metrics.myers-briggs-answers'}
+            <MyersBriggsChart personality={Object.fromEntries(Object.keys(answer.answer_metrics[0]).filter(key => key !== '__component').map(key => { return [key, answer.answer_metrics[0][key]]}))} />
             {/if}
         </div>
         {/each}
     </div>
+    {/if}
 
-    <button on:click={() => { 
+    <button disabled={ !selectedAnswer && selectedAnswer !== 0 } on:click={() => { 
         personality.update(p => {
             const newP = Object.assign({}, p)
-            if (currQuestion.answers[selectedAnswer].answer_metrics[0].__typename === 'ComponentMetricsMyersBriggs') {
-                Object.keys(newP.metrics).forEach(key => newP.metrics[key] = (newP.metrics[key] + currQuestion.answers[selectedAnswer].answer_metrics[0][key] / quiz.questions.filter(q => q.slug.includes('q/')).length))
+            if (currQuestion.answers[selectedAnswer].answer_metrics[0].__component === 'metrics.myers-briggs-answers') {
+                Object.keys(newP.metrics).forEach(key => newP.metrics[key] = (newP.metrics[key] + currQuestion.answers[selectedAnswer].answer_metrics[0][key] / $quiz.questions.filter(q => q.slug.includes('q/')).length))
                 console.log('adding to the personality!', newP)
             } else {
                 newP.charity = currQuestion.answers[selectedAnswer].answer_metrics[0].charity
@@ -49,10 +62,9 @@
             return newP
         })
 
-        $: console.log('nextQuestion = ', nextQuestion)
-        if (nextQuestion) { currQuestionIndex++ }
         push((nextQuestion) ? `#/${ nextQuestion.slug }` : '#/meet-your-goddess')
     }}>Next</button>
+    <BackButton />
 </div>
 
 <style>
@@ -69,6 +81,11 @@
         width: 50ch;
         margin: 5vh auto;
         margin-bottom: 0;
+    }
+
+    fieldset {
+        margin-bottom: 1.5rem;
+        border: none;
     }
 
     .answers {
@@ -98,6 +115,6 @@
 
     .vertical_cards .answer {
         width: var(--answer-width);
-        margin: 0 var(--answer-gap);
+        margin: calc(var(--answer-gap) / 2) var(--answer-gap);
     }
 </style>

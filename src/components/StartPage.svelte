@@ -1,20 +1,18 @@
 <script>
     import { getContext } from 'svelte'
     import { push } from 'svelte-spa-router'
-    import { currQuestionIndex } from '../stores.js'
-
-    const quiz = getContext('quiz')
+    import { currQuestionIndex, quiz, debug } from '../stores.js'
 
     $currQuestionIndex = -1
 
-    const firstQuestion = quiz.questions[$currQuestionIndex + 1]
-    console.log('question is', firstQuestion)
+    const firstQuestion = $quiz.questions[$currQuestionIndex + 1]
 </script>
 
 <section>
-    <h1>{ quiz.title }</h1>
+    <h1>{ $quiz.title }</h1>
     <p>Click to get started</p>
-    <button on:click={() => {
+    <button on:click={(e) => {
+        if (e.shiftKey) { $debug = true }
         $currQuestionIndex++
         push(`#/${ firstQuestion.slug }`)
     }}>Let's Get Started</button>
