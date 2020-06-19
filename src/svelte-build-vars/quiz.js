@@ -5,14 +5,14 @@ var recommended = require('remark-preset-lint-recommended')
 var html = require('remark-html')
 var report = require('vfile-reporter')
 
-const host = 'http://localhost:1337'
+const host = 'http://localhost:9000'
 
 // const fetch = createApolloFetch({
 //   uri: host+'/graphql'
 // })
 
-const id = 1
-//const id = 5ee92fc00712a0ae8389be90
+// const id = 1
+const id = '5ee92fc00712a0ae8389be90'
 
 // const query = `
 // query {
@@ -120,6 +120,9 @@ module.exports = Promise.all([
 )
 
 function preprocessQuiz(quizObj, questionObj, interstitials) {
+  const blank = deleteProps(blankPersonality(quizObj.results_metrics[0]), ['_id', 'id', 'createdAt', 'updatedAt', '__v', '__component'])
+  console.log('blank', blank)
+
   quizObj.questions.forEach(q => { 
     //preformat question uris
     q.slug = 'q/'+q.slug
@@ -130,12 +133,18 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
     q.answers.forEach(a => a.answer_metrics = [{}])
 
     if (q.answer_metrics[0] && q.answer_metrics[0].__component === 'metrics.myers-briggs-answers') {
-      q.answer_metrics[0] = deleteProps(q.answer_metrics[0], ['__component', 'id'])
+      q.answer_metrics[0] = deleteProps(q.answer_metrics[0], ['__component', '_id', 'createdAt', 'updatedAt', '__v'])
 
       Object.keys(q.answer_metrics[0]).forEach(key => {
+        if (key === 'id') return
+
         q.answer_metrics[0][key].forEach((item, i, arr) => {
+          const answer = q.answers.find(a => a.id === item.id)
+          if (!answer.answer_metrics) {
+            answer.answer_metrics = [{}]
+          }
           const val = -1 + i * 2 / (arr.length - 1)
-          q.answers.find(a => a.id === item.id).answer_metrics[0][key] = val
+          answer.answer_metrics[0][key] = val
         })
       })
     } else if (q.answer_metrics[0] && q.answer_metrics[0].__component === 'metrics.charity') {
@@ -146,6 +155,8 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
         }
       })
     }
+
+    console.log(q.answers.map(({label, answer_metrics}) => { label, answer_metrics }))
   
     remark()
       .use(recommended)
@@ -174,6 +185,8 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
           a.content = String(file)
         })
     })
+
+    q.answer_metrics = deleteProps(q.answer_metrics, ['id'])
   }) 
 
   // preprocess interstitials
@@ -182,10 +195,7 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
 
   // slot in the interstitials with the questions.
   quizObj.interstitials = quizObj.interstitials.map(interstitial => {
-    console.log('interstitial', interstitial)
     interstitial = deleteProps(interstitial, interPropsToDelete)
-    console.log('interstitial after', interstitial)
-    console.log('from within the interstitial preprocessing!', interstitial)
     if (!interstitial.position[0]) return 
     if (interstitial.position[0].__component === 'interstitial.absolute') {
       quizObj.questions.splice(interstitial.position[0].slot, 0, interstitial)
@@ -210,7 +220,7 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
 
 
   //preprocess results_metrics
-  const rmPropsToDelete = ['id', '__component']
+  const rmPropsToDelete = ['id', '_id', '__component', 'createdAt', 'updatedAt', '__v']
   quizObj.results_metrics[0] = deleteProps(quizObj.results_metrics[0], rmPropsToDelete)
 
   Object.keys(quizObj.results_metrics[0]).forEach(key => {
@@ -221,10 +231,8 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
   })
 
   //preprocess results
-  const resultmetricsPropsToDelete = ['id', '__component']
-  quizObj.results.forEach(result => { result.result_metrics[0] = deleteProps(result.result_metrics[0], resultmetricsPropsToDelete) })
-
   quizObj.results.forEach(result => {
+    result.result_metrics = [Object.assign({}, blank)]
     Object.keys(result.result_metrics[0]).forEach(key => {
       result.result_metrics[0][key] = quizObj.results_metrics[0][key].find(item => item.result_name === result.result_name).value
     })
