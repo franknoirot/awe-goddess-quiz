@@ -5,7 +5,7 @@ var recommended = require('remark-preset-lint-recommended')
 var html = require('remark-html')
 var report = require('vfile-reporter')
 
-const host = 'http://localhost:9000'
+const host = 'https://awe-quiz-builder.herokuapp.com'
 
 // const fetch = createApolloFetch({
 //   uri: host+'/graphql'
