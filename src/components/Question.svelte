@@ -2,6 +2,7 @@
     import { getContext, onDestroy } from 'svelte'
     import { fade } from 'svelte/transition'
     import { location, push } from 'svelte-spa-router'
+    import { getCookie, setCookie } from '../functions/cookies'
     import MyersBriggsChart from './MyersBriggsChart.svelte'
     import AnswerCheckbox from './answers/AnswerCheckbox.svelte'
     import AnswerVerticalCard from './answers/AnswerVerticalCard.svelte'
@@ -12,11 +13,24 @@
     let currQuestion, currQuestionIndexSetter, nextQuestion
     let selectedAnswer
 
+    let cookie, answers
+
     $: {
         currQuestion = $quiz.questions.find(q => q.slug === 'q/' + params.slug)
         currQuestionIndexSetter = $quiz.questions.findIndex(q => q.slug === 'q/' + params.slug)
         $currQuestionIndex = currQuestionIndexSetter
         nextQuestion = ($currQuestionIndex <= $quiz.questions.length) ? $quiz.questions[$currQuestionIndex+1] : null
+        onNewQuestion(params.slug)
+    }
+
+    function onNewQuestion() {
+        cookie = getCookie()
+        answers = cookie ? cookie.answers : []
+        console.log('cookie = ', cookie)
+        const foundAnswer = cookie && cookie.answers.find(item => item.qId === currQuestion.id)
+        if (foundAnswer) {
+            selectedAnswer = foundAnswer.answer
+        }
     }
 </script>
 
@@ -56,7 +70,23 @@
             } else {
                 newP.charity = currQuestion.answers[selectedAnswer].answer_metrics[0].charity
             }
-
+            setCookie({
+                personality: newP,
+                currQId: currQuestion.id,
+                currQIndex: $currQuestionIndex,
+                answers: answers.find(item => item.qId === currQuestion.id)
+                ? [...answers.slice(0, answers.findIndex(item => item.qId === currQuestion.id)),
+                    Object.assign({}, answers.find(item => item.qId === currQuestion.id), { answer: selectedAnswer, aId: currQuestion.answers[selectedAnswer].id }),
+                    ...answers.slice(answers.findIndex(item => item.qId === currQuestion.id) + 1)
+                  ]
+                : [...answers,
+                    {
+                        qId: currQuestion.id,
+                        answer: selectedAnswer,
+                        aId: currQuestion.answers[selectedAnswer].id
+                    }
+                ]
+            })
 
             return newP
         })

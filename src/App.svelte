@@ -69,6 +69,9 @@
 	}
 
 	.wrapper {
+		--answer-selected-bg-color: #FEF7EF;
+		--answer-selected-border-color: #F7DEC0;
+		--back-button-color: hsl(35deg, 36%, 80%);
 		position: relative;
 		width: 100%;
 		box-sizing: border-box;

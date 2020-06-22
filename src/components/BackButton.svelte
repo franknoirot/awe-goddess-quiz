@@ -27,7 +27,7 @@
     .dot {
         margin: 1rem;
         border-radius: 50%;
-        background: hsl(35deg, 36%, 80%);
+        background: var(--back-button-color);
         width: 3rem;
         height: 3rem;
         display: flex;

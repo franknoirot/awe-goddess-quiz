@@ -29,7 +29,7 @@
         console.log('this in replacer = ', this)
         console.log('parsing context', p1)
         const keys = p1.split('.')
-        let storeObj = get(eval(keys[0]))
+        let storeObj = get(Function(`"use strict"; return (${keys[0]})`)())
         keys.forEach((key,i) => {
             console.log(keys, storeObj)
             if (i !== 0) {

@@ -52,40 +52,6 @@
         background: #FEF7EF;
     }
 
-    .checkmark {
-        width: 2em;
-    }
-
-    .checkmark path {
-        stroke: #ccc;
-        transition: all .12s ease-in-out;
-    }
-
-    label:hover path,
-    label:focus path {
-        stroke: #777;
-    }
-
-    input:checked ~ .checkmark path {
-        stroke: hsl(85deg, 80%, 45%);
-    }
-
-    .checkmark circle {
-        fill: transparent;
-        transition: all .12s ease-in-out;
-        r: 0px;
-    }
-
-    label:hover circle,
-    label:focus circle {
-        fill: #dddddd;
-        r: 4px;
-    }
-
-    input:checked ~ .checkmark circle {
-        fill: hsl(80deg, 50%, 80%);
-        r: 5px;
-    }
 
     label > input {
         position: absolute;
