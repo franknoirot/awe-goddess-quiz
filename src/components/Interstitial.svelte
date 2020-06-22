@@ -3,6 +3,7 @@
     import { get } from 'svelte/store'
     import { fade } from 'svelte/transition'
     import { push } from 'svelte-spa-router'
+    import { getCookie } from '../functions/cookies'
     import BackButton from './BackButton.svelte'
     import { currQuestionIndex, personality, quiz } from '../stores.js'
 
@@ -10,9 +11,9 @@
     let currQuestion
     let currQuestionIndexSetter
     let nextQuestion
+    let cookie = getCookie()
 
     console.log('personality = ', $personality)
-
     $: {
         currQuestion = $quiz.questions.find(q => q.slug === 'i/' + params.slug)
         currQuestionIndexSetter = $quiz.questions.findIndex(q => q.slug === 'i/' + params.slug)
@@ -29,13 +30,16 @@
         console.log('this in replacer = ', this)
         console.log('parsing context', p1)
         const keys = p1.split('.')
-        let storeObj = get(Function(`"use strict"; return (${keys[0]})`)())
+        let storeObj = get(eval(keys[0]))
         keys.forEach((key,i) => {
             console.log(keys, storeObj)
             if (i !== 0) {
                 storeObj = storeObj[key]
             }
         })
+        if (!storeObj && cookie.personality.charity) {
+          // TODO: rerun same loop over cookie if we got undefined?  
+        }
         return storeObj
     }
 </script>
