@@ -1,5 +1,5 @@
 <script>
-    import { getContext } from 'svelte'
+    import { getContext, onDestroy } from 'svelte'
     import { fade } from 'svelte/transition'
     import { location, push } from 'svelte-spa-router'
     import MyersBriggsChart from './MyersBriggsChart.svelte'
@@ -7,9 +7,10 @@
     import AnswerVerticalCard from './answers/AnswerVerticalCard.svelte'
     import BackButton from './BackButton.svelte'
     import { currQuestionIndex, quiz, personality, debug } from '../stores.js'
-    let currQuestion, currQuestionIndexSetter, nextQuestion
 
     export let params
+    let currQuestion, currQuestionIndexSetter, nextQuestion
+    let selectedAnswer
 
     $: {
         currQuestion = $quiz.questions.find(q => q.slug === 'q/' + params.slug)
@@ -17,18 +18,16 @@
         $currQuestionIndex = currQuestionIndexSetter
         nextQuestion = ($currQuestionIndex <= $quiz.questions.length) ? $quiz.questions[$currQuestionIndex+1] : null
     }
-
-    let selectedAnswer
 </script>
 
-<div id={'question-'+$currQuestionIndex+'-'+$location} class='question' in:fade={{duration: 250}}
+<div id={'question-'+$currQuestionIndex+'-'+currQuestion.slug} class='question' in:fade={{duration: 250}}
     style={`--answer-width: ${ currQuestion.answer_width }; --answer-gap: ${ currQuestion.answer_gap }`}>
     {@html currQuestion.content }
     {#if currQuestion.layout === 'checkboxes'}
         <fieldset>
             {#each currQuestion.answers as answer, i ('answer-'+i)}
             <AnswerCheckbox content={answer.content} name={'q-'+$currQuestionIndex} value={ i }
-                on:input={() => selectedAnswer = i}/>
+                on:input={() => { selectedAnswer = i } } isChecked={ selectedAnswer === i }/>
             {#if $debug && answer.answer_metrics[0].__component === 'metrics.myers-briggs-answers'}
             <MyersBriggsChart personality={Object.fromEntries(Object.keys(answer.answer_metrics[0]).filter(key => key !== '__component').map(key => { return [key, answer.answer_metrics[0][key]]}))} />
             {/if}

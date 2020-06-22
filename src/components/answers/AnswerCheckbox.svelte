@@ -1,17 +1,15 @@
 <script>
+    import Checkmark from '../Checkmark.svelte'
     export let content
     export let value
     export let name
-
+    export let isChecked = false
 </script>
 
 <label>
-    <input type="radio" value={value} name={name} on:input/>
+    <input type="radio" value={value} name={name} on:input />
     <div class='bg'></div>
-    <svg class="checkmark" viewBox="0 0 10 10">
-      <circle cx="5" cy="5"></circle>
-      <path stroke-linecap="round" d="M 3 5.5 l 1.85 1.5 l 1.75 -3.75" fill="none"></path>
-    </svg>
+    <Checkmark checked={ isChecked }/>
     <span>{@html content}</span>
 </label>
 
@@ -26,7 +24,7 @@
         padding: .5em 3em .5em 1.5em;
         margin: 1rem;
         position: relative;
-        border-radius: .5rem;
+        border-radius: 0;
         transition: all .12s ease-in-out;
         text-align: left;
         z-index: 0;
@@ -44,13 +42,14 @@
         left: 0;
         top: 0;
         z-index: -1;
-        border: solid transparent 1px;
-        border-radius: .5rem;
+        border: solid transparent 2px;
+        border-radius: 0;
         transition: all .12s ease-in-out;
     }
 
     input:checked ~ .bg {
-        border-color: #333;
+        border-color: #F7DEC0;
+        background: #FEF7EF;
     }
 
     .checkmark {
