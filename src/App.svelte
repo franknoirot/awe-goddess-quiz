@@ -15,6 +15,7 @@
 	import StartPage from './components/StartPage.svelte'
 	import Question from './components/Question.svelte'
 	import Interstitial from './components/Interstitial.svelte'
+	import EmailCapture from './components/EmailCapture.svelte'
 	import EndPage from './components/EndPage.svelte'
 	import Analytics from './components/Analytics.svelte'
 
@@ -42,7 +43,8 @@
 
 	const routes = Object.fromEntries([
 		//...quiz.questions.map(question => ['/'+question.slug, ((question.slug.includes('interstitial')) ? Interstitial : Question)]),
-		['/meet-your-goddess', EndPage],
+		['/meet-your-goddess', EmailCapture],
+		['/results', EndPage],
 		['/analytics', Analytics],
 		['/i/:slug', Interstitial],
 		['/q/:slug', Question],

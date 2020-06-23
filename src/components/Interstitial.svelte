@@ -1,7 +1,8 @@
 <script>
     import { getContext } from 'svelte'
     import { get } from 'svelte/store'
-    import { fade } from 'svelte/transition'
+    import { fade, blur } from 'svelte/transition'
+    // import { quintOut } from 'svelte/easing'
     import { push } from 'svelte-spa-router'
     import { getCookie } from '../functions/cookies'
     import BackButton from './BackButton.svelte'
@@ -61,7 +62,9 @@
     </div>
     <button on:click={() => { 
         push((nextQuestion) ? `#/${ nextQuestion.slug }` : '#/meet-your-goddess')
-    }}>Next</button>
+    }}>
+        Next
+    </button>
     <BackButton />
 </div>
 
