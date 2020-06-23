@@ -5,7 +5,8 @@
     import { push } from 'svelte-spa-router'
     import { getCookie } from '../functions/cookies'
     import BackButton from './BackButton.svelte'
-    import { currQuestionIndex, personality, quiz } from '../stores.js'
+    import stores from '../stores.js'
+    const { currQuestionIndex, personality, quiz } = stores
 
     export let params
     let currQuestion
@@ -13,7 +14,7 @@
     let nextQuestion
     let cookie = getCookie()
 
-    console.log('personality = ', $personality)
+    console.log('cookie = ', cookie)
     $: {
         currQuestion = $quiz.questions.find(q => q.slug === 'i/' + params.slug)
         currQuestionIndexSetter = $quiz.questions.findIndex(q => q.slug === 'i/' + params.slug)
@@ -22,25 +23,34 @@
     }
 
     function parseSvelteStoreVars(rawContent) {
+        console.log('this is parse store vals', this)
         console.log('this = ', Object.keys(this))
         return rawContent.replace(/{{\s*([$\w\d_.]+)\s*}}/g, storeReplacer)
     }
 
-    function storeReplacer(match, p1) { 
-        console.log('this in replacer = ', this)
-        console.log('parsing context', p1)
-        const keys = p1.split('.')
-        let storeObj = get(eval(keys[0]))
-        keys.forEach((key,i) => {
-            console.log(keys, storeObj)
-            if (i !== 0) {
-                storeObj = storeObj[key]
+    function objDrilldown(obj, keysArr) {
+        let newObj = Object.assign({}, obj)
+        keysArr.forEach((key,i) => {
+            console.log(i,newObj, key)
+            if (i === 0 || !newObj || !newObj[key]) return 
+            newObj = newObj[key]
+            if ((newObj instanceof Object) && Object.keys(newObj).length === 0) {
+                newObj = undefined
             }
         })
-        if (!storeObj && cookie.personality.charity) {
+        return newObj
+    }
+
+    function storeReplacer(match, p1) { 
+        console.log('parsing context', p1)
+        const keys = p1.split('.')
+        const storeObj = objDrilldown(get(stores[keys[0]]), keys)
+        let processedObj =  storeObj ? storeObj : objDrilldown(cookie[keys[0]], keys)
+        console.log(storeObj, processedObj)
+        if (!processedObj && cookie.personality.charity) {
           // TODO: rerun same loop over cookie if we got undefined?  
         }
-        return storeObj
+        return processedObj
     }
 </script>
 

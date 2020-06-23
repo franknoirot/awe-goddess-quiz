@@ -7,3 +7,12 @@ export const personality = writable({})
 export const debug = writable(false)
 
 export const quiz = writable({})
+
+const stores = {
+    currQuestionIndex,
+    personality,
+    debug,
+    quiz,
+}
+
+export default stores

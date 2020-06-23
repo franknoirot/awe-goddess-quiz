@@ -68,7 +68,7 @@
                 Object.keys(newP.metrics).forEach(key => newP.metrics[key] = (newP.metrics[key] + currQuestion.answers[selectedAnswer].answer_metrics[0][key] / $quiz.questions.filter(q => q.slug.includes('q/')).length))
                 console.log('adding to the personality!', newP)
             } else {
-                newP.charity = currQuestion.answers[selectedAnswer].answer_metrics[0].charity
+                newP.charity = currQuestion.answers[selectedAnswer].answer_metrics[0].charity || undefined
             }
             setCookie({
                 personality: newP,
