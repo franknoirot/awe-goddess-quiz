@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+
+<style>
+    body {
+        height: 100vh;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #vid-wrapper {
+        max-width: 720px;
+        position: relative;
+    }
+
+    #vid-wrapper h1 {
+        position: absolute;
+        left: 7%;
+        bottom: 27%;
+        font-size: 2.6rem;
+        color: white;
+        font-weight: 400;
+        font-family: museo-sans, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    #vid-wrapper video {
+        max-width: 100%;
+
+    }
+</style>
+
+<body id="quiz">
+    <div id='vid-wrapper'>
+        <video autoplay muted loop>
+            <source src='/assets/NIHP_GIF_Vid.mp4'>
+        </video>
+        <h1>Life-Changing<br>Mental Healthcare<br>for Young Adults</h1>
+    </div>
+</body>
+</html>

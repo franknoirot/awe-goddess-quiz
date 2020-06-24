@@ -1,6 +1,7 @@
 <script>
     import { push } from 'svelte-spa-router'
     import { currQuestionIndex, quiz } from '../stores.js'
+    export let origin = ''
 
     let quizLength = $quiz.questions.length + 1
     $: widthPct = ($currQuestionIndex + 1) / quizLength * 100 + '%'
@@ -9,7 +10,7 @@
 <header>
     <div class='top-bar'>
         <a href='/'>
-            <img src="/assets/awe-inspired-logo_60x.png" alt="Awe Inspired - Link to Home">
+            <img src={ origin + "/assets/awe-inspired-logo_60x.png"} alt="Awe Inspired - Link to Home">
         </a>
         <a href='/'>
             <svg viewBox="0 0 5 5">

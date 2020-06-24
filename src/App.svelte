@@ -19,6 +19,8 @@
 	import EndPage from './components/EndPage.svelte'
 	import Analytics from './components/Analytics.svelte'
 
+	export let origin = ''
+
 	$quiz = quizData
 	let windowQuizData = false
 	$: if (windowQuizData) {
@@ -55,7 +57,7 @@
 </script>
 
 <div class='wrapper' style={`${$quiz.custom_styles.map(style => `--${style.style_name}: ${style.style_value}`).join('; ')}`}>
-	<TopBar />
+	<TopBar origin={ origin } />
 	<main>
 		<Router routes={ routes }/>
 
