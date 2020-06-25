@@ -1,7 +1,10 @@
 <script>
     import { pop } from 'svelte-spa-router'
+
+    export let hidden = false
 </script>
 
+{#if !hidden}
 <button on:click={() => pop()}>
     <div class='dot'>
         <svg viewBox='0 0 10 5'>
@@ -10,6 +13,7 @@
     </div>
     Back
 </button>
+{/if}
 
 <style>
     button {

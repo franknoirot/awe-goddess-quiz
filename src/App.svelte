@@ -6,7 +6,7 @@
 
 <script>
 	import TopBar from './components/TopBar.svelte'
-	import Router from 'svelte-spa-router'
+	import Router, { location } from 'svelte-spa-router'
 	import { setContext, onMount } from 'svelte'
 	import { blankPersonality } from './functions/personality.js'
 	import { personality, quiz, debug } from './stores.js'
@@ -18,6 +18,7 @@
 	import EmailCapture from './components/EmailCapture.svelte'
 	import EndPage from './components/EndPage.svelte'
 	import Analytics from './components/Analytics.svelte'
+	import BackButton from './components/BackButton.svelte'
 
 	export let origin = ''
 
@@ -60,7 +61,7 @@
 	<TopBar origin={ origin } />
 	<main>
 		<Router routes={ routes }/>
-
+		<BackButton hidden={ ['/', 'results', 'analytics'].some(path => path === $location) } />
 		<PersonalityBadge active={ $debug } />
 	</main>
 </div>

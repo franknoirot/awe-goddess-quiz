@@ -6,13 +6,12 @@
     import MyersBriggsChart from './MyersBriggsChart.svelte'
     import AnswerCheckbox from './answers/AnswerCheckbox.svelte'
     import AnswerVerticalCard from './answers/AnswerVerticalCard.svelte'
-    import BackButton from './BackButton.svelte'
     import { currQuestionIndex, quiz, personality, debug } from '../stores.js'
 
     export let params
     let currQuestion, currQuestionIndexSetter, nextQuestion
     let selectedAnswer
-
+    let renderQ = true
     let cookie, answers
 
     $: {
@@ -20,6 +19,9 @@
         currQuestionIndexSetter = $quiz.questions.findIndex(q => q.slug === 'q/' + params.slug)
         $currQuestionIndex = currQuestionIndexSetter
         nextQuestion = ($currQuestionIndex <= $quiz.questions.length) ? $quiz.questions[$currQuestionIndex+1] : null
+    }
+
+    $: {
         onNewQuestion(params.slug)
     }
 
@@ -31,17 +33,22 @@
         if (foundAnswer) {
             selectedAnswer = foundAnswer.answer
         }
+        renderQ = false
+        setTimeout(() => renderQ = true, 0)
     }
 </script>
 
+{#if renderQ === true}
 <div id={'question-'+$currQuestionIndex+'-'+currQuestion.slug} class='question' in:fade={{duration: 250}}
     style={`--answer-width: ${ currQuestion.answer_width }; --answer-gap: ${ currQuestion.answer_gap }`}>
     {@html currQuestion.content }
     {#if currQuestion.layout === 'checkboxes'}
         <fieldset>
             {#each currQuestion.answers as answer, i ('answer-'+i)}
+            {#if renderQ === true}
             <AnswerCheckbox content={answer.content} name={'q-'+$currQuestionIndex} value={ i }
                 on:input={() => { selectedAnswer = i } } isChecked={ selectedAnswer === i }/>
+            {/if}
             {#if $debug && answer.answer_metrics[0].__component === 'metrics.myers-briggs-answers'}
             <MyersBriggsChart personality={Object.fromEntries(Object.keys(answer.answer_metrics[0]).filter(key => key !== '__component').map(key => { return [key, answer.answer_metrics[0][key]]}))} />
             {/if}
@@ -50,6 +57,7 @@
     {:else}
     <div class={'answers '+currQuestion.layout}>
         {#each currQuestion.answers as answer, i ('answer-'+i)}
+        {#if renderQ === true}
         <div class='answer'>
             <AnswerVerticalCard answer={answer} name={'q-'+$currQuestionIndex} value={ i }
                 on:input={() => selectedAnswer = i} aspect={ currQuestion.image_aspect_ratio }/>
@@ -57,6 +65,7 @@
             <MyersBriggsChart personality={Object.fromEntries(Object.keys(answer.answer_metrics[0]).filter(key => key !== '__component').map(key => { return [key, answer.answer_metrics[0][key]]}))} />
             {/if}
         </div>
+        {/if}
         {/each}
     </div>
     {/if}
@@ -91,10 +100,13 @@
             return newP
         })
 
+        Array.from(document.querySelectorAll('input')).forEach(el => el.checked = false)
+        selectedAnswer = null
+
         push((nextQuestion) ? `#/${ nextQuestion.slug }` : '#/meet-your-goddess')
     }}>Next</button>
-    <BackButton />
 </div>
+{/if}
 
 <style>
     .question {
