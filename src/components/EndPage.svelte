@@ -5,7 +5,7 @@
     import MyersBriggsChart from './MyersBriggsChart.svelte'
     import { currQuestionIndex, personality, quiz } from '../stores.js'
 
-    $currQuestionIndex = $currQuestionIndex + 1
+    $currQuestionIndex = $quiz.questions.length
 
     const results = $quiz.results
     $: sortedResults = results.sort((a,b) => Math.abs(personalityDistSum($personality.metrics, a.result_metrics[0])) - Math.abs(personalityDistSum($personality.metrics, b.result_metrics[0])))
