@@ -5,7 +5,6 @@
 
     let currQuestionIndexSetter = $quiz.questions.length
     $currQuestionIndex = currQuestionIndexSetter
-
     let isValid = false
     let email
 </script>

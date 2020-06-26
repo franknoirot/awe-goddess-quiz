@@ -10,7 +10,7 @@
 
     export let params
     let currQuestion, currQuestionIndexSetter, nextQuestion
-    let selectedAnswer
+    let selectedAnswer = null
     let renderQ = true
     let cookie, answers
 
