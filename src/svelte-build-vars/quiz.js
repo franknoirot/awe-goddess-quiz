@@ -11,9 +11,10 @@ id = '5ee92fc00712a0ae8389be90'
 module.exports = Promise.all([
     fetch(host+'/quizzes/'+id).then(res => res.json()),
     fetch(host+`/questions?quiz_eq=`+id).then(res => res.json()),
-    fetch(host+'/interstitials?quiz_eq='+id).then(res => res.json())
-  ]).then(([quiz, questions, interstitials]) => {
-    const dataObj = preprocessQuiz(quiz, questions, interstitials)
+    fetch(host+'/interstitials?quiz_eq='+id).then(res => res.json()),
+    fetch(host+'/results?quiz_eq='+id).then(res => res.json())
+  ]).then(([quiz, questions, interstitials, results]) => {
+    const dataObj = preprocessQuiz(quiz, questions, interstitials, results)
 
     if (process.env.NODE_ENV === "development") {
       dataObj.analytics = runAnalytics(dataObj)
@@ -23,8 +24,10 @@ module.exports = Promise.all([
   }
 )
 
-function preprocessQuiz(quizObj, questionObj, interstitials) {
-  const blank = deleteProps(blankPersonality(quizObj.results_metrics[0]), ['_id', 'id', 'createdAt', 'updatedAt', '__v', '__component'])
+function preprocessQuiz(quizObj, questionObj, interstitials, results) {
+  const blank = deleteProps(blankPersonality(quizObj.results_metrics), ['_id', 'id', 'createdAt', 'updatedAt', '__v', '__component'])
+  console.log('blank = ', blank)
+
 
   quizObj.questions.forEach(q => { 
     //preformat question uris
@@ -91,18 +94,18 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
   }) 
 
   // preprocess interstitials
-  quizObj.interstitials = interstitials
+  // quizObj.interstitials = interstitials
   const interPropsToDelete = ['created_at', 'quiz', 'updated_at']
 
   // slot in the interstitials with the questions.
   quizObj.interstitials = quizObj.interstitials.map(interstitial => {
     interstitial = deleteProps(interstitial, interPropsToDelete)
-    if (!interstitial.position[0]) return 
-    if (interstitial.position[0].__component === 'interstitial.absolute') {
-      quizObj.questions.splice(interstitial.position[0].slot, 0, interstitial)
+    if (!interstitial.location[0]) return 
+    if (interstitial.location[0].__component === 'interstitial.absolute') {
+      quizObj.questions.splice(interstitial.location[0].slot, 0, interstitial)
     }
-    else if (interstitial.position[0].__component === 'interstitial.relative-to-question') {
-      quizObj.questions.splice(quizObj.questions.findIndex(elem => elem.id === interstitial.position[0].question.id) + interstitial.position[0].question_offset , 0, interstitial) 
+    else if (interstitial.location[0].__component === 'interstitial.relative-to-question') {
+      quizObj.questions.splice(quizObj.questions.findIndex(elem => elem.id === interstitial.location[0].question.id) + interstitial.location[0].question_offset , 0, interstitial) 
     }
 
     // preformat interstitial slugs
@@ -122,10 +125,10 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
 
   //preprocess results_metrics
   const rmPropsToDelete = ['id', '_id', '__component', 'createdAt', 'updatedAt', '__v']
-  quizObj.results_metrics[0] = deleteProps(quizObj.results_metrics[0], rmPropsToDelete)
+  quizObj.results_metrics = deleteProps(quizObj.results_metrics, rmPropsToDelete)
 
-  Object.keys(quizObj.results_metrics[0]).forEach(key => {
-    quizObj.results_metrics[0][key].forEach((item, i, arr) => {
+  Object.keys(quizObj.results_metrics).forEach(key => {
+    quizObj.results_metrics[key].forEach((item, i, arr) => {
       const val = -1 + i * 2 / (arr.length - 1)
       item.value = val
     })
@@ -135,7 +138,30 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
   quizObj.results.forEach(result => {
     result.result_metrics = [Object.assign({}, blank)]
     Object.keys(result.result_metrics[0]).forEach(key => {
-      result.result_metrics[0][key] = quizObj.results_metrics[0][key].find(item => item.result_name === result.result_name).value
+      result.result_metrics[0][key] = quizObj.results_metrics[key].find(item => item.result_name === result.result_name).value
+    })
+
+    remark()
+      .use(recommended)
+      .use(html)
+      .process(result.description, function(err, file) {
+        // console.error(report(err || file))
+        result.description = String(file)
+      })
+
+    result.style_tip.forEach(tip => {
+      if (!tip.content) {
+        const foundResult = results.find(r => r.id === result.id).style_tip.find(t => t.id === tip.id)
+        result.content = foundResult.content
+      }
+
+      remark()
+      .use(recommended)
+      .use(html)
+      .process(tip.content, function(err, file) {
+        // console.error(report(err || file))
+        tip.content = String(file)
+      })
     })
   })
 
@@ -143,8 +169,8 @@ function preprocessQuiz(quizObj, questionObj, interstitials) {
 }
 
 function cleanupQuiz(quizObj) {
-  Object.keys(quizObj.results_metrics[0]).forEach(key => {
-    quizObj.results_metrics[0][key] = quizObj.results_metrics[0][key].map(item => {
+  Object.keys(quizObj.results_metrics).forEach(key => {
+    quizObj.results_metrics[key] = quizObj.results_metrics[key].map(item => {
       return {
         result_name: item.result_name,
         value: item.value,
